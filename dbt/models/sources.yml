@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: salesforce
+    description: Salesforce data loaded by dlt into the warehouse
+    database: salesforce_raw          # dlt dataset name
+    schema: main                      # adjust for your destination
+    tables:
+      - name: opportunity
+        description: Closed and open opportunities
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: stagename
+          - name: amount
+          - name: closedate
+          - name: type
+          - name: ownerid
+      - name: opportunity_team_member
+        description: Team members and split percentages on opportunities
+        columns:
+          - name: opportunityid
+          - name: userid
+          - name: teammemberrole
+          - name: splitpercentage
+      - name: user
+        description: Salesforce users
+        columns:
+          - name: id
+            tests: [unique, not_null]
+          - name: name
+          - name: email
