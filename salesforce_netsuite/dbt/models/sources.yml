@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: salesforce
+    description: Salesforce data loaded by dlt
+    tables:
+      - name: opportunity
+      - name: opportunity_team_member
+      - name: user
+      - name: account
+
+  - name: netsuite
+    description: NetSuite data loaded by dlt (usage revenue)
+    tables:
+      - name: usage_revenue
+        description: |
+          Usage-based revenue records. Replace with the actual NetSuite
+          object or SuiteQL result name you load.

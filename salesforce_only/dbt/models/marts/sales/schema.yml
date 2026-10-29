@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: fct_opportunity_payout_detail
+    description: |
+      Line-level commission payouts at the Opportunity × Person grain.
+      One row per closed-won opportunity per team member.
+    columns:
+      - name: opportunity_id
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: payout_month
+        tests: [not_null]
+      - name: amount
+        tests: [not_null]
+      - name: payout_role
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AE', 'AM', 'Support']
+      - name: payout_amount
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - opportunity_id
+            - user_id
+
+  - name: fct_monthly_payouts
+    description: |
+      Final monthly compensation report by salesperson and role.
+      One row per payout_month × user_id × payout_role.
+    columns:
+      - name: payout_month
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: user_name
+        tests: [not_null]
+      - name: payout_role
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AE', 'AM', 'Support']
+      - name: deals
+        tests: [not_null]
+      - name: total_payout
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - payout_month
+            - user_id
+            - payout_role
