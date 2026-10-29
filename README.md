@@ -43,7 +43,29 @@ dbt run --select fct_opportunity_payout_detail fct_monthly_payouts
 dbt test
 ```
 
-## Final output
+## Model layers
+
+```
+staging/
+  stg_salesforce__opportunity
+  stg_salesforce__opportunity_team_member
+  stg_salesforce__user
+        ↓
+intermediate/
+  int_opportunity_payouts          # role mapping + rates applied
+        ↓
+marts/sales/
+  fct_opportunity_payout_detail    # Opportunity × Person
+  fct_monthly_payouts              # Month × Person × Role  ← final report
+```
+
+Run the full DAG:
+
+```bash
+cd dbt
+dbt run
+dbt test
+```
 
 `fct_monthly_payouts` — one row per month × salesperson × role with:
 

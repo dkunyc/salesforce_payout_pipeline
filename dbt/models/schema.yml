@@ -1,0 +1,89 @@
+version: 2
+
+models:
+  - name: stg_salesforce__opportunity
+    description: Staged Salesforce Opportunity with renamed columns.
+    columns:
+      - name: opportunity_id
+        tests: [unique, not_null]
+      - name: stage_name
+      - name: amount
+      - name: close_date
+      - name: opportunity_type
+
+  - name: stg_salesforce__opportunity_team_member
+    description: Staged Opportunity Team Member with split as decimal.
+    columns:
+      - name: opportunity_id
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: team_member_role
+      - name: split_pct
+
+  - name: stg_salesforce__user
+    description: Staged Salesforce User.
+    columns:
+      - name: user_id
+        tests: [unique, not_null]
+      - name: user_name
+      - name: email
+
+  - name: int_opportunity_payouts
+    description: |
+      Intermediate model joining closed-won opportunities to team members,
+      applying role mapping and commission rates.
+      Grain: opportunity_id × user_id
+    columns:
+      - name: opportunity_id
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: payout_role
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AE', 'AM', 'Support']
+      - name: payout_amount
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - opportunity_id
+            - user_id
+
+  - name: fct_opportunity_payout_detail
+    description: Fact table at Opportunity × Person grain.
+    columns:
+      - name: opportunity_id
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: payout_amount
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - opportunity_id
+            - user_id
+
+  - name: fct_monthly_payouts
+    description: Final monthly compensation report by salesperson and role.
+    columns:
+      - name: payout_month
+        tests: [not_null]
+      - name: user_id
+        tests: [not_null]
+      - name: payout_role
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AE', 'AM', 'Support']
+      - name: total_payout
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - payout_month
+            - user_id
+            - payout_role
